@@ -3,11 +3,15 @@ import numpy as np
 import pandas as pd
 import random
 from sklearn import metrics
-MIN_SAMPLE=sys.argv[1]
-EPSILON=sys.argv[2]
-NUM_ITER=sys.argv[3]
+import sys
 
-raw_data = pd.read_csv("./data.csv", header=None)
+MIN_SAMPLE = sys.argv[1]
+EPSILON = sys.argv[2]
+NUM_ITER = sys.argv[3]
+NUM_CANDIDATE = sys.argv[4]
+DATA_FILE = sys.argv[5]
+
+raw_data = pd.read_csv(DATA_FILE, header=None)
 raw_data = np.array(raw_data)
 sam_label = raw_data[:,[0,2]]
 raw_data = np.delete(raw_data,0,axis=1)
@@ -49,7 +53,7 @@ def chooseCriterion(dataSet, min_sample=MIN_SAMPLE, epsilon=EPSILON):
     if len(np.unique(dataSet[:, -2])) == 1:
         return None, calHypo(dataSet)
     for feat in range(feat_num):
-        if len(np.unique(dataSet[:,feat])) <= 20:
+        if len(np.unique(dataSet[:,feat])) <= NUM_CANDIDATE:
             for row in range(dataSet.shape[0]):
                 dataSet1, dataSet2 = splitDataset(dataSet, feat, dataSet[row, feat])
                 if len(dataSet1) < min_sample or len(dataSet2) < min_sample:
@@ -60,7 +64,7 @@ def chooseCriterion(dataSet, min_sample=MIN_SAMPLE, epsilon=EPSILON):
                     bestColumn = feat
                     bestValue = dataSet[row, feat]
         else:
-            candidate = np.linspace(np.min(dataSet[:,feat]),np.max(dataSet[:,feat]),20)
+            candidate = np.linspace(np.min(dataSet[:,feat]),np.max(dataSet[:,feat]),NUM_CANDIDATE)
             for candi in candidate:
                 dataSet1, dataSet2 = splitDataset(dataSet, feat, candi)
                 if len(dataSet1) < min_sample or len(dataSet2) < min_sample:
